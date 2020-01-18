@@ -256,6 +256,16 @@ def printPrometheus(data):
 
   json_body = [
     {
+      "measurement": "PM0.5",
+      "tags": {
+        "host": "r2d2",
+        "location": "living-room"
+      },
+      "fields": {
+        "count_cubic_centimeter": calcFloat(data[24:30])
+      }
+    },
+    {
       "measurement": "PM1",
       "tags": {
         "host": "r2d2",
@@ -289,7 +299,7 @@ def printPrometheus(data):
       }
     },
     {
-      "measurement": "PM4",
+      "measurement": "PM10",
       "tags": {
         "host": "r2d2",
         "location": "living-room"
@@ -297,6 +307,16 @@ def printPrometheus(data):
       "fields": {
         "microgram_cubic_meter": calcFloat(data[18:24]),
         "count_cubic_centimeter": calcFloat(data[48:54])
+      }
+    },
+    {
+      "measurement": "Particles",
+      "tags": {
+        "host": "r2d2",
+        "location": "living-room"
+      },
+      "fields": {
+        "typical_particle_size": calcFloat(data[54:60])
       }
     }
   ]
