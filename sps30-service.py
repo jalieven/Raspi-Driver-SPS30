@@ -25,7 +25,7 @@ import pigpio # aptitude install python3-pigpio
 import time
 import struct
 import sys
-import datetime
+from datetime import datetime
 import crcmod # aptitude install python3-crcmod
 import os, signal
 from subprocess import call
@@ -255,7 +255,7 @@ def printPrometheus(data):
   # output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="SPS30"}} {0:.8f}\n'.format( pm10 )
   # output_string += 'particulate_matter_typpartsize_um{{sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[54:60]))
 
-  timestamp = datetime.datetime.now().isoformat()
+  timestamp = datetime.utcnow().isoformat()
   json_body = [
     {
       "measurement": "PM0.5",
