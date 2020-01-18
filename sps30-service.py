@@ -32,7 +32,7 @@ from subprocess import call
 import pprint
 from influxdb import InfluxDBClient
 
-influxClient = InfluxDBClient(host='192.168.2.212', port=8086, database='metrics')
+influxClient = InfluxDBClient(host='localhost', port=8086, database='metrics', username='admin', password='pswd')
 
 def eprint(*args, **kwargs):
   print(*args, file=sys.stderr, **kwargs)
