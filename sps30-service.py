@@ -28,8 +28,10 @@ import sys
 import crcmod # aptitude install python3-crcmod
 import os, signal
 from subprocess import call
-
 import pprint
+from influxdb import InfluxDBClient
+
+influxClient = InfluxDBClient(host='192.168.2.212', port=8086, database='metrics')
 
 def eprint(*args, **kwargs):
   print(*args, file=sys.stderr, **kwargs)
@@ -52,7 +54,7 @@ else:
 def exit_gracefully(a,b):
   print("exit")
   stopMeasurement()
-  os.path.isfile(LOGFILE) and os.access(LOGFILE, os.W_OK) and os.remove(LOGFILE)
+  # os.path.isfile(LOGFILE) and os.access(LOGFILE, os.W_OK) and os.remove(LOGFILE)
   pi.i2c_close(h)
   exit(0)
 
@@ -241,20 +243,69 @@ def printPrometheus(data):
     eprint("pm10 == 0; ignoring values")
     return
 
-  output_string = 'particulate_matter_ppcm3{{size="pm0.5",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[24:30]))
-  output_string += 'particulate_matter_ppcm3{{size="pm1",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[30:36]))
-  output_string += 'particulate_matter_ppcm3{{size="pm2.5",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[36:42]))
-  output_string += 'particulate_matter_ppcm3{{size="pm4",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[42:48]))
-  output_string += 'particulate_matter_ppcm3{{size="pm10",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[48:54]))
-  output_string += 'particulate_matter_ugpm3{{size="pm1",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data))
-  output_string += 'particulate_matter_ugpm3{{size="pm2.5",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[6:12]))
-  output_string += 'particulate_matter_ugpm3{{size="pm4",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[12:18]))
-  output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="SPS30"}} {0:.8f}\n'.format( pm10 )
-  output_string += 'particulate_matter_typpartsize_um{{sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[54:60]))
+  # output_string = 'particulate_matter_ppcm3{{size="pm0.5",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[24:30]))
+  # output_string += 'particulate_matter_ppcm3{{size="pm1",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[30:36]))
+  # output_string += 'particulate_matter_ppcm3{{size="pm2.5",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[36:42]))
+  # output_string += 'particulate_matter_ppcm3{{size="pm4",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[42:48]))
+  # output_string += 'particulate_matter_ppcm3{{size="pm10",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[48:54]))
+  # output_string += 'particulate_matter_ugpm3{{size="pm1",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data))
+  # output_string += 'particulate_matter_ugpm3{{size="pm2.5",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[6:12]))
+  # output_string += 'particulate_matter_ugpm3{{size="pm4",sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[12:18]))
+  # output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="SPS30"}} {0:.8f}\n'.format( pm10 )
+  # output_string += 'particulate_matter_typpartsize_um{{sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[54:60]))
+
+  json_body = [
+    {
+      "measurement": "PM1",
+      "tags": {
+        "host": "r2d2",
+        "location": "living-room"
+      },
+      "fields": {
+        "microgram_cubic_meter": calcFloat(data),
+        "count_cubic_centimeter": calcFloat(data[30:36])
+      }
+    },
+    {
+      "measurement": "PM2.5",
+      "tags": {
+        "host": "r2d2",
+        "location": "living-room"
+      },
+      "fields": {
+        "microgram_cubic_meter": calcFloat(data[6:12]),
+        "count_cubic_centimeter": calcFloat(data[36:42])
+      }
+    },
+    {
+      "measurement": "PM4",
+      "tags": {
+        "host": "r2d2",
+        "location": "living-room"
+      },
+      "fields": {
+        "microgram_cubic_meter": calcFloat(data[12:18]),
+        "count_cubic_centimeter": calcFloat(data[42:48])
+      }
+    },
+    {
+      "measurement": "PM4",
+      "tags": {
+        "host": "r2d2",
+        "location": "living-room"
+      },
+      "fields": {
+        "microgram_cubic_meter": calcFloat(data[18:24]),
+        "count_cubic_centimeter": calcFloat(data[48:54])
+      }
+    }
+  ]
+
+  influxClient.write_points(json_body)
   # print(output_string)
-  logfilehandle = open(LOGFILE, "w",1)
-  logfilehandle.write(output_string)
-  logfilehandle.close()
+  #logfilehandle = open(LOGFILE, "w",1)
+  #logfilehandle.write(output_string)
+  #logfilehandle.close()
 
 def printHuman(data):
   print("pm0.5 count: %f" % calcFloat(data[24:30]))
@@ -290,7 +341,7 @@ def bigReset():
 if len(sys.argv) > 1 and sys.argv[1] == "stop":
   exit_gracefully(False,False)
 
-call(["mkdir", "-p", "/run/sensors/sps30"])
+# call(["mkdir", "-p", "/run/sensors/sps30"])
 
 readArticleCode() or exit(1)
 
