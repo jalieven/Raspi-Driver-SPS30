@@ -25,6 +25,7 @@ import pigpio # aptitude install python3-pigpio
 import time
 import struct
 import sys
+import datetime
 import crcmod # aptitude install python3-crcmod
 import os, signal
 from subprocess import call
@@ -254,6 +255,7 @@ def printPrometheus(data):
   # output_string += 'particulate_matter_ugpm3{{size="pm10",sensor="SPS30"}} {0:.8f}\n'.format( pm10 )
   # output_string += 'particulate_matter_typpartsize_um{{sensor="SPS30"}} {0:.8f}\n'.format( calcFloat(data[54:60]))
 
+  timestamp = datetime.datetime.now().isoformat()
   json_body = [
     {
       "measurement": "PM0.5",
@@ -261,6 +263,7 @@ def printPrometheus(data):
         "host": "r2d2",
         "location": "living-room"
       },
+      "time": timestamp,
       "fields": {
         "count_cubic_centimeter": calcFloat(data[24:30])
       }
@@ -271,6 +274,7 @@ def printPrometheus(data):
         "host": "r2d2",
         "location": "living-room"
       },
+      "time": timestamp,
       "fields": {
         "microgram_cubic_meter": calcFloat(data),
         "count_cubic_centimeter": calcFloat(data[30:36])
@@ -282,6 +286,7 @@ def printPrometheus(data):
         "host": "r2d2",
         "location": "living-room"
       },
+      "time": timestamp,
       "fields": {
         "microgram_cubic_meter": calcFloat(data[6:12]),
         "count_cubic_centimeter": calcFloat(data[36:42])
@@ -293,6 +298,7 @@ def printPrometheus(data):
         "host": "r2d2",
         "location": "living-room"
       },
+      "time": timestamp,
       "fields": {
         "microgram_cubic_meter": calcFloat(data[12:18]),
         "count_cubic_centimeter": calcFloat(data[42:48])
@@ -304,6 +310,7 @@ def printPrometheus(data):
         "host": "r2d2",
         "location": "living-room"
       },
+      "time": timestamp,
       "fields": {
         "microgram_cubic_meter": calcFloat(data[18:24]),
         "count_cubic_centimeter": calcFloat(data[48:54])
@@ -315,6 +322,7 @@ def printPrometheus(data):
         "host": "r2d2",
         "location": "living-room"
       },
+      "time": timestamp,
       "fields": {
         "typical_particle_size": calcFloat(data[54:60])
       }
